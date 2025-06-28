@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>📚 Sách có sẵn</h2>
+  <ul>
+    {% for book in books %}
+      <li>
+        <strong>{{ book.title }}</strong> – {{ book.author }} ({{ book.n_pages }} trang)
+        <a href="/loan/{{ book.title }}" onclick="return confirm('Are you sure you want to borrow this book?');">[Mượn]</a>
+      </li>
+    {% else %}
+      <li>Không có sách nào sẵn sàng.</li>
+    {% endfor %}
+  </ul>
+
+  <hr>
+
+  <h2>📕 Sách đã mượn</h2>
+  <ul>
+    {% for book in borrowed %}
+      <li>
+        <strong>{{ book.title }}</strong> – {{ book.author }} ({{ book.n_pages }} trang)
+        <a href="/return/{{ book.title }}" onclick="return confirm('Are you sure you want to return this book?');">[Trả]</a>
+      </li>
+    {% else %}
+      <li>Chưa mượn quyển nào.</li>
+    {% endfor %}
+  </ul>
+
+  <a href="{{ url_for('home') }}">⬅ Về trang chủ</a>
+{% endblock %}

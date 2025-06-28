@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Danh sách sách đã mượn</h2>
+  <ul>
+    {% for book in borrowed %}
+      <li>
+        <strong>{{ book.title }}</strong> – {{ book.author }} ({{ book.n_pages }} trang)
+        <a href="/return/{{ book.title }}" onclick="return confirm('Are you sure you want to return this book?');">[Trả]</a>
+      </li>
+    {% else %}
+      <li>Không có sách nào đang mượn.</li>
+    {% endfor %}
+  </ul>
+  <a href="{{ url_for('home') }}">⬅ Quay lại trang chủ</a>
+{% endblock %}
