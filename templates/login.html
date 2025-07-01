@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Đăng nhập</h2>
+  <p>Chưa có tài khoản? <a href="{{ url_for('signup') }}">Đăng ký</a></p>
+  <form method="post">
+    <label>ID:</label>
+    <input type="text" name="user_id" required>
+    <br>
+    <label>Mật khẩu:</label>
+    <input type="password" name="password" required>
+    <br><br>
+    <button type="submit">Đăng nhập</button>
+  </form>
+
+  {% if error %}
+    <p style="color: red;">{{ error }}</p>
+  {% endif %}
+{% endblock %}

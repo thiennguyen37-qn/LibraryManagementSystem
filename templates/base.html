@@ -7,6 +7,11 @@
 <body>
     <h1>📚 Hệ thống quản lý thư viện</h1>
     <hr>
+    {% if session.user_id %}
+    <p>👤 Xin chào: <strong>{{ current_user.name }}</strong> (ID: {{ current_user.user_id }})</p>
+    <p><a href="{{ url_for('logout') }}">🔒 Đăng xuất</a></p>
+    {% endif %}
+
     {% block content %}
     <!-- Nội dung riêng từng trang sẽ hiển thị ở đây -->
     {% endblock %}

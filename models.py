@@ -35,6 +35,8 @@ class Magazine(Document):
 
   def __eq__(self,other):
     return self.title == other.title and self.issue == other.issue and self.n_pages == other.n_pages
+
+
 class Exporter(ABC):
   @abstractmethod
   def export_data(self,data):
@@ -61,9 +63,10 @@ class LoggerMixin:
 
 class User(LoggerMixin):
 
-  def __init__(self,name,id):
+  def __init__(self,name,id,password):
     self.name = name
     self.user_id = id
+    self.password = password
     self.borrowed_items = []
 
   def borrow_item(self,document):
