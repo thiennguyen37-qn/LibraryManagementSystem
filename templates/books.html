@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
+  <h2>🔍 Tìm kiếm sách</h2>
+  <form method="get" action="{{ url_for('show_books') }}">
+    <input type="text" name="q" placeholder="Nhập tên sách hoặc tác giả" value="{{ keyword }}">
+    <button type="submit">Tìm</button>
+  </form>
+
   <h2>📚 Sách có sẵn</h2>
   <ul>
     {% for book in books %}

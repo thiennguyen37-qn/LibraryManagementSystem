@@ -1,5 +1,9 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
+import csv
+import json
+from io import StringIO
+
 class Document(ABC):
   @abstractmethod
   def get_info(self):
@@ -44,15 +48,20 @@ class Exporter(ABC):
 
 
 class CSVExporter(Exporter):
-
-  def export_data(self,data):
-    print(f'Exporting data to CSV: {data}')
-
+  def export_data(self, data):
+    output = StringIO()
+    if data:
+        writer = csv.DictWriter(output, fieldnames=data[0].keys())
+        writer.writeheader()
+        writer.writerows(data)
+    return output.getvalue()
 
 class JSONExporter(Exporter):
+  def export_data(self, data):
+    return json.dumps(data, indent=2, ensure_ascii=False)
 
-  def export_data(self,data):
-    print(f'Exporting data to JSON: {data}')
+
+
 class LoggerMixin:
 
   def log(self,message):

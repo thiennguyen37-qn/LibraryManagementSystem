@@ -1,5 +1,5 @@
-from flask import Flask, render_template, redirect, url_for, request, session
-from models import Book, LibraryManager, User
+from flask import Flask, render_template, redirect, url_for, request, session, Response
+from models import Book, LibraryManager, User, CSVExporter, JSONExporter
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey123"
@@ -32,14 +32,23 @@ def get_current_user():
 def home():
     return render_template("index.html")
 
-@app.route("/books")
+@app.route("/books", methods=["GET", "POST"])
 def show_books():
     user = get_current_user()
     if not user:
         return redirect(url_for("login"))
-    available_books = [i['document'] for i in library.items if i['availability']]
+
+    keyword = request.args.get("q", "").lower()  # lấy từ khóa tìm kiếm
+    available_books = [
+        i["document"] for i in library.items
+        if i["availability"] and (
+            keyword in i["document"].title.lower() or keyword in i["document"].author.lower()
+        )
+    ] if keyword else [i["document"] for i in library.items if i["availability"]]
+
     borrowed_books = user.borrowed_items
-    return render_template("books.html", books=available_books, borrowed=borrowed_books)
+    return render_template("books.html", books=available_books, borrowed=borrowed_books, keyword=keyword)
+
 
 @app.route("/loan/<book_title>")
 def loan_book(book_title):
@@ -87,10 +96,14 @@ def signup():
             if user.user_id == user_id:
                 return render_template("signup.html", error="ID đã tồn tại. Vui lòng chọn ID khác.")
 
+        # Kiểm tra độ dài mật khẩu
+        if len(password) < 6:
+            return render_template("signup.html", error="Mật khẩu phải có ít nhất 6 ký tự.")
+
         # Tạo user mới và thêm vào danh sách
         new_user = User(name, user_id, password)
         users.append(new_user)
-        session["user_id"] = new_user.user_id  # Tự động đăng nhập luôn
+        session["user_id"] = new_user.user_id
         return redirect(url_for("show_books"))
 
     return render_template("signup.html", error=None)
@@ -149,6 +162,47 @@ def view_users():
 def logout():
     session.pop("user_id", None)
     return redirect(url_for("login"))
+
+@app.route("/change_password", methods=["GET", "POST"])
+def change_password():
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        old_pass = request.form["old_password"]
+        new_pass = request.form["new_password"]
+        confirm_pass = request.form["confirm_password"]
+
+        if user.password != old_pass:
+            return render_template("change_password.html", error="❌ Mật khẩu cũ không đúng.")
+        elif new_pass != confirm_pass:
+            return render_template("change_password.html", error="❌ Mật khẩu mới không khớp.")
+        elif len(new_pass) < 6:
+            return render_template("change_password.html", error="❌ Mật khẩu mới phải có ít nhất 6 ký tự.")
+        else:
+            user.password = new_pass
+            return render_template("change_password.html", success="✅ Đổi mật khẩu thành công!")
+
+    return render_template("change_password.html", error=None)
+
+@app.route("/admin/export/<fmt>")
+def export_loan_record(fmt):
+    user = get_current_user()
+    if not user or not user.is_admin:
+        return redirect(url_for("login"))
+
+    exporter = CSVExporter() if fmt == "csv" else JSONExporter()
+    content = exporter.export_data(library.loan_record)
+
+    mimetype = "text/csv" if fmt == "csv" else "application/json"
+    filename = f"loan_record.{fmt}"
+
+    return Response(
+        content,
+        mimetype=mimetype,
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
 
 @app.context_processor
 def inject_user():

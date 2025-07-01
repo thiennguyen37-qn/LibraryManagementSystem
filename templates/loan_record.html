@@ -20,6 +20,12 @@
         </tr>
       {% endfor %}
     </table>
+    <p>
+    📤 Xuất dữ liệu:
+    <a href="{{ url_for('export_loan_record', fmt='csv') }}">CSV</a> |
+    <a href="{{ url_for('export_loan_record', fmt='json') }}">JSON</a>
+    </p>
+
   {% else %}
     <p>Chưa có lượt mượn nào.</p>
   {% endif %}
