@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>📄 Lịch sử mượn sách</h2>
+
+  {% if records %}
+    <table border="1" cellpadding="5">
+      <tr>
+        <th>Thời gian</th>
+        <th>Tên người mượn</th>
+        <th>ID</th>
+        <th>Tên sách</th>
+      </tr>
+      {% for r in records %}
+        <tr>
+          <td>{{ r["loan_date"] }}</td>
+          <td>{{ r["user name"] }}</td>
+          <td>{{ r["user id"] }}</td>
+          <td>{{ r["item info"] }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p>Chưa có lượt mượn nào.</p>
+  {% endif %}
+
+  <p><a href="{{ url_for('admin_panel') }}">⬅ Quay lại trang quản trị</a></p>
+{% endblock %}

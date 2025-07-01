@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>🔒 Khu vực quản trị</h2>
+  <p>Xin chào, {{ user.name }} (ID: {{ user.user_id }})</p>
+
+  <ul>
+    <li><a href="{{ url_for('show_books') }}">📚 Quản lý sách</a></li>
+    <li><a href="{{ url_for('home') }}">⬅ Về trang chủ</a></li>
+    <li><a href="{{ url_for('add_book') }}">➕ Thêm sách</a></li>
+    <li><a href="{{ url_for('loan_record') }}">📄 Xem lịch sử mượn</a></li>
+    <li><a href="{{ url_for('view_users') }}">👥 Danh sách người dùng</a></li>
+    <h3>📚 Danh sách sách trong thư viện</h3>
+    <ul>
+    {% for item in library.items %}
+        <li>
+        {{ item.document.title }} – {{ item.document.author }}
+        {% if item.availability %}
+            <a href="{{ url_for('delete_book', title=item.document.title) }}"
+            onclick="return confirm('Bạn có chắc muốn xóa sách này không?');">
+            ❌ Xóa
+            </a>
+        {% else %}
+            (Đang cho mượn)
+        {% endif %}
+        </li>
+    {% else %}
+        <li>Không có sách nào.</li>
+    {% endfor %}
+    </ul>
+
+  </ul>
+{% endblock %}

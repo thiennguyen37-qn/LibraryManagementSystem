@@ -17,7 +17,8 @@ library.add_item(book3)
 users = [
     User("Alice", "U001", "alice123"),
     User("Bob", "U002", "bob456"),
-    User("Charlie", "U003", "charlie789")
+    User("Charlie", "U003", "charlie789"),
+    User("Admin","admin","admin_pass",is_admin = True)
 ]
  
 def get_current_user():
@@ -93,6 +94,56 @@ def signup():
         return redirect(url_for("show_books"))
 
     return render_template("signup.html", error=None)
+
+@app.route("/admin")
+def admin_panel():
+    user = get_current_user()
+    if not user or not user.is_admin:
+        return redirect(url_for("login"))  # hoặc trả về "403 Forbidden"
+    return render_template("admin.html", user=user, library=library)
+
+@app.route("/admin/add_book", methods=["GET", "POST"])
+def add_book():
+    user = get_current_user()
+    if not user or not user.is_admin:
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        title = request.form["title"]
+        author = request.form["author"]
+        n_pages = int(request.form["n_pages"])
+        new_book = Book(title, author, n_pages)
+        library.add_item(new_book)
+        return redirect(url_for("admin_panel"))
+    return render_template("add_book.html")
+
+@app.route("/admin/delete_book/<title>")
+def delete_book(title):
+    user = get_current_user()
+    if not user or not user.is_admin:
+        return redirect(url_for("login"))
+    for i in library.items:
+        if i["document"].title == title:
+            if i["availability"]:  # chỉ xóa nếu chưa cho mượn
+                library.items.remove(i)
+                library.log(f"Admin {user.name} đã xóa sách '{title}'")
+            break
+    return redirect(url_for("admin_panel"))
+
+@app.route("/admin/loan_record")
+def loan_record():
+    user = get_current_user()
+    if not user or not user.is_admin:
+        return redirect(url_for("login")) 
+    return render_template("loan_record.html", records=library.loan_record)
+
+@app.route("/admin/users")
+def view_users():
+    user = get_current_user()
+    if not user or not user.is_admin:
+        return redirect(url_for("login"))
+    return render_template("user_list.html", users=users)
+
 
 @app.route("/logout")
 def logout():

@@ -9,6 +9,9 @@
     <hr>
     {% if session.user_id %}
     <p>👤 Xin chào: <strong>{{ current_user.name }}</strong> (ID: {{ current_user.user_id }})</p>
+    {% if current_user.is_admin %}
+    <p><a href="{{ url_for('admin_panel') }}">🛠️ Trang quản trị</a></p>
+    {% endif %}
     <p><a href="{{ url_for('logout') }}">🔒 Đăng xuất</a></p>
     {% endif %}
 

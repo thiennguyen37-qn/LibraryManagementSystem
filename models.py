@@ -63,11 +63,12 @@ class LoggerMixin:
 
 class User(LoggerMixin):
 
-  def __init__(self,name,id,password):
+  def __init__(self,name,id,password,is_admin = False):
     self.name = name
     self.user_id = id
     self.password = password
     self.borrowed_items = []
+    self.is_admin = is_admin
 
   def borrow_item(self,document):
     self.log(f'{self.name} asked for borrowing {document.title}')

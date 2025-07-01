@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>👥 Danh sách người dùng</h2>
+
+  <table border="1" cellpadding="5">
+    <tr>
+      <th>Họ và tên</th>
+      <th>ID</th>
+      <th>Vai trò</th>
+      <th>Đang mượn</th>
+    </tr>
+    {% for user in users %}
+      <tr>
+        <td>{{ user.name }}</td>
+        <td>{{ user.user_id }}</td>
+        <td>{% if user.is_admin %}Quản trị viên{% else %}Người dùng{% endif %}</td>
+        <td>{{ user.borrowed_items | length }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+
+  <p><a href="{{ url_for('admin_panel') }}">⬅ Quay lại trang quản trị</a></p>
+{% endblock %}
