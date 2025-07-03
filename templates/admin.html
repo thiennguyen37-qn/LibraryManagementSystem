@@ -1,33 +1,39 @@
 {% extends "base.html" %}
+{% block title %}Quản trị viên{% endblock %}
 
 {% block content %}
-  <h2>🔒 Khu vực quản trị</h2>
-  <p>Xin chào, {{ user.name }} (ID: {{ user.user_id }})</p>
+<div class="container mt-4">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title mb-3">
+        🔐 Khu vực quản trị
+      </h2>
+      <p>Xin chào, <strong>{{ user.name }}</strong> (ID: {{ user.user_id }})</p>
 
-  <ul>
-    <li><a href="{{ url_for('show_books') }}">📚 Quản lý sách</a></li>
-    <li><a href="{{ url_for('home') }}">⬅ Về trang chủ</a></li>
-    <li><a href="{{ url_for('add_book') }}">➕ Thêm sách</a></li>
-    <li><a href="{{ url_for('loan_record') }}">📄 Xem lịch sử mượn</a></li>
-    <li><a href="{{ url_for('view_users') }}">👥 Danh sách người dùng</a></li>
-    <h3>📚 Danh sách sách trong thư viện</h3>
-    <ul>
-    {% for item in library.items %}
-        <li>
-        {{ item.document.title }} – {{ item.document.author }}
-        {% if item.availability %}
-            <a href="{{ url_for('delete_book', title=item.document.title) }}"
-            onclick="return confirm('Bạn có chắc muốn xóa sách này không?');">
-            ❌ Xóa
-            </a>
+      <div class="mb-3 d-flex flex-wrap gap-2">
+        <a href="{{ url_for('view_books_admin') }}" class="btn btn-outline-success btn-sm">📚 Quản lý sách</a>
+        <a href="{{ url_for('home') }}" class="btn btn-outline-secondary btn-sm">↩️ Về trang chủ</a>
+        <a href="{{ url_for('add_book') }}" class="btn btn-outline-primary btn-sm">➕ Thêm sách</a>
+        <a href="{{ url_for('loan_record') }}" class="btn btn-outline-dark btn-sm">📄 Xem lịch sử mượn</a>
+        <a href="{{ url_for('view_users') }}" class="btn btn-outline-info btn-sm">👥 Danh sách người dùng</a>
+      </div>
+
+      <hr>
+
+      <h4 class="mt-4">📚 Danh sách sách trong thư viện</h4>
+      <ul class="list-group">
+        {% for i in library.items %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>
+              {{ i.document.title }} – <em>{{ i.document.author }}</em>
+            </span>
+            <a href="{{ url_for('delete_book', title=i.document.title) }}" class="btn btn-sm btn-danger" onclick="return confirm('Xóa sách này?')">❌ Xóa</a>
+          </li>
         {% else %}
-            (Đang cho mượn)
-        {% endif %}
-        </li>
-    {% else %}
-        <li>Không có sách nào.</li>
-    {% endfor %}
-    </ul>
-
-  </ul>
+          <li class="list-group-item">Chưa có sách nào trong thư viện.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
 {% endblock %}

@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, session, Response
 from models import Book, LibraryManager, User, CSVExporter, JSONExporter
+import math
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey123"
@@ -150,12 +151,54 @@ def loan_record():
         return redirect(url_for("login")) 
     return render_template("loan_record.html", records=library.loan_record)
 
+@app.route("/admin")
+def view_books_admin():
+    user = get_current_user()
+    if not user or not user.is_admin:
+        return redirect(url_for("login"))
+    return render_template("admin.html", user=user, library=library)
+
+
 @app.route("/admin/users")
 def view_users():
     user = get_current_user()
     if not user or not user.is_admin:
         return redirect(url_for("login"))
-    return render_template("user_list.html", users=users)
+
+    # Lấy tham số truy vấn
+    search = request.args.get("search", "").strip().lower()
+    sort_by = request.args.get("sort_by", "name")
+    order = request.args.get("order", "asc")
+    page = int(request.args.get("page", 1))
+
+    # Lọc người dùng theo từ khóa tìm kiếm
+    filtered_users = [u for u in users if search in u.name.lower() or search in u.user_id.lower()]
+
+    # Sắp xếp
+    sorted_users = sorted(filtered_users, key=lambda u: getattr(u, sort_by))
+    if order == "desc":
+        sorted_users.reverse()
+
+    # Phân trang
+    per_page = 25
+    total_users = len(sorted_users)
+    total_pages = math.ceil(total_users / per_page)
+
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_users = sorted_users[start:end]
+
+    return render_template(
+        "user_list.html",
+        users=paginated_users,
+        sort_by=sort_by,
+        order=order,
+        search=search,
+        page=page,
+        total_pages=total_pages,
+        total_users=total_users
+    )
+
 
 
 @app.route("/logout")

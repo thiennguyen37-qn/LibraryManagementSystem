@@ -1,24 +1,80 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h2>👥 Danh sách người dùng</h2>
+  <h2 class="mb-4">👥 Danh sách người dùng</h2>
+  <p class="text-muted">
+    Hiển thị {{ users|length }} người dùng trên {{ total_users }} | Trang {{ page }} / {{ total_pages }}
+  </p>
+  {% if users %}
+  <form method="get" class="row mb-3">
+    <div class="col-md-4">
+        <input type="text" name="search" class="form-control" placeholder="Tìm theo tên hoặc ID"
+            value="{{ search }}">
+    </div>
+    <input type="hidden" name="sort_by" value="{{ sort_by }}">
+    <input type="hidden" name="order" value="{{ order }}">
+    <div class="col-md-auto">
+        <button type="submit" class="btn btn-primary">🔍 Tìm kiếm</button>
+    </div>
+    </form>
+    <table class="table table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>
+            <a href="{{ url_for('view_users', sort_by='name', order='desc' if sort_by == 'name' and order == 'asc' else 'asc') }}">
+              Họ tên
+              {% if sort_by == 'name' %}
+                {% if order == 'asc' %} 🔼 {% else %} 🔽 {% endif %}
+              {% endif %}
+            </a>
+          </th>
+          <th>
+            <a href="{{ url_for('view_users', sort_by='user_id', order='desc' if sort_by == 'user_id' and order == 'asc' else 'asc') }}">
+              ID người dùng
+              {% if sort_by == 'user_id' %}
+                {% if order == 'asc' %} 🔼 {% else %} 🔽 {% endif %}
+              {% endif %}
+            </a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+          <tr>
+            <td>{{ user.name }}</td>
+            <td>{{ user.user_id }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <!-- PHÂN TRANG -->
+    <nav aria-label="Pagination" class="mt-4">
+    <ul class="pagination">
+        <!-- Nút Trang trước -->
+        <li class="page-item {% if page == 1 %}disabled{% endif %}">
+        <a class="page-link"
+            href="{{ url_for('view_users', page=page-1, search=search, sort_by=sort_by, order=order) }}">« Trước</a>
+        </li>
 
-  <table border="1" cellpadding="5">
-    <tr>
-      <th>Họ và tên</th>
-      <th>ID</th>
-      <th>Vai trò</th>
-      <th>Đang mượn</th>
-    </tr>
-    {% for user in users %}
-      <tr>
-        <td>{{ user.name }}</td>
-        <td>{{ user.user_id }}</td>
-        <td>{% if user.is_admin %}Quản trị viên{% else %}Người dùng{% endif %}</td>
-        <td>{{ user.borrowed_items | length }}</td>
-      </tr>
-    {% endfor %}
-  </table>
+        <!-- Các số trang -->
+        {% for p in range(1, total_pages + 1) %}
+        <li class="page-item {% if p == page %}active{% endif %}">
+            <a class="page-link"
+            href="{{ url_for('view_users', page=p, search=search, sort_by=sort_by, order=order) }}">{{ p }}</a>
+        </li>
+        {% endfor %}
 
-  <p><a href="{{ url_for('admin_panel') }}">⬅ Quay lại trang quản trị</a></p>
+        <!-- Nút Trang sau -->
+        <li class="page-item {% if page == total_pages %}disabled{% endif %}">
+        <a class="page-link"
+            href="{{ url_for('view_users', page=page+1, search=search, sort_by=sort_by, order=order) }}">Sau »</a>
+        </li>
+    </ul>
+    </nav>
+
+  {% else %}
+    <div class="alert alert-warning">Chưa có người dùng nào.</div>
+  {% endif %}
+
+  <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary mt-3">⬅ Về trang quản trị</a>
 {% endblock %}
